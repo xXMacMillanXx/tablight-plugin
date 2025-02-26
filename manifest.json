@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "TabLight",
+  "version": "1.0",
+  "description": "Highlights already open tabs, hovering over a link.",
+  "icons": {
+    "48": "icons/tl-48.png"
+  },
+  "permissions": [
+    "tabs",
+    "activeTab"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["tablight.js"]
+    }
+  ]
+}
