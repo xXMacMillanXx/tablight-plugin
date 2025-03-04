@@ -12,11 +12,15 @@ The extension is available on the Mozilla addon page. Here is the [link to TabLi
 
 ### Firefox
 
+Hovering over a YouTube video link highlights the already open tab.
+
 | ![tabs in Firefox](media/tabs.png "Firefox Tabs") | |
 | :--- | :--- |
 | ![highlighted tabs in Firefox using TabLight](media/tabs_highlighted.png "Highlighted Firefox Tabs") | ![hovering over a link](media/hovering_link.png "Hover Over A Link") |
 
 ### Zen Browser
+
+Hovering over a YouTube video link highlights the already open tab.
 
 |      |       |
 | :--- | :---- |
