@@ -28,5 +28,5 @@ Hovering over a YouTube video link highlights the already open tab.
 
 ## Debugging / Development
 
-After cloning the repo, enter `about:debugging` in Firefox and click `This Firefox` and
-`Load Temporary Add-on...`, select any file (like manifest.json) from the tablight folder.
+After cloning the repo, execute the `build.sh` script, enter `about:debugging` in Firefox and
+click `This Firefox` and `Load Temporary Add-on...`, select the `tablightx.y.zip` from the build folder.

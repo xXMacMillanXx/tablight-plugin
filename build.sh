@@ -1,1 +1,1 @@
-web-ext -s ./tablight -a ./build build
+web-ext -s ./tablight -a ./build build --overwrite-dest

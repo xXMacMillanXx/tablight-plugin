@@ -1,32 +1,43 @@
-let highlightedTabId = null;
+let highlightedTabIds = new Set();
 
-async function highlightTabByUrl(url) {
+function normalizeUrl(url) {
+  try {
+    const u = new URL(url);
+    // u.hash = '';
+    return u.href;
+  } catch {
+    return url;
+  }
+}
+
+async function highlightTabsByUrl(url) {
+  const targetUrl = normalizeUrl(url);
   const tabs = await browser.tabs.query({});
-  const linkUrl = new URL(url).href;
-
+  
+  await clearHighlight();
+  
   for (const tab of tabs) {
-    if (tab.url === linkUrl) {
-      if (highlightedTabId && highlightedTabId !== tab.id) {
-        await browser.tabs.update(highlightedTabId, { highlighted: false });
-      }
-
+    if (!tab.url) continue;
+    
+    if (normalizeUrl(tab.url) === targetUrl) {
       await browser.tabs.update(tab.id, { active: false, highlighted: true });
-      highlightedTabId = tab.id;
-      return;
+      highlightedTabIds.add(tab.id);
     }
   }
 }
 
 async function clearHighlight() {
-  if (highlightedTabId) {
-    await browser.tabs.update(highlightedTabId, { highlighted: false });
-    highlightedTabId = null;
+  for (const tabId of highlightedTabIds) {
+    try {
+      await browser.tabs.update(tabId, { highlighted: false });
+    } catch { }
   }
+  highlightedTabIds.clear();
 }
 
 browser.runtime.onMessage.addListener((message) => {
   if (message.action === 'highlightTab') {
-    highlightTabByUrl(message.url);
+    highlightTabsByUrl(message.url);
   }
 
   if (message.action === 'removeHighlight') {
