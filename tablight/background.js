@@ -1,32 +1,35 @@
-function highlightTab(tabId) {
-  browser.tabs.update(tabId, { active: false, highlighted: true });
-}
+let highlightedTabId = null;
 
-function removeHighlight(tabId) {
-  browser.tabs.update(tabId, { active: false, highlighted: false });
-}
+async function highlightTabByUrl(url) {
+  const tabs = await browser.tabs.query({});
+  const linkUrl = new URL(url).href;
 
-browser.runtime.onMessage.addListener(async (message, sender) => {
-  if (message.action === 'highlightTab') {
-    let tabs = await browser.tabs.query({});
-    let activeTab = await browser.tabs.query({ active: true, currentWindow: true });
-    let activeTabId = activeTab[0].id;
-    
-    for (let tab of tabs) {
-      let tabUrl = new URL(tab.url);
-      let linkUrl = new URL(message.url);
-      if (tabUrl.href === linkUrl.href) {
-        highlightTab(tab.id);
+  for (const tab of tabs) {
+    if (tab.url === linkUrl) {
+      if (highlightedTabId && highlightedTabId !== tab.id) {
+        await browser.tabs.update(highlightedTabId, { highlighted: false });
       }
+
+      await browser.tabs.update(tab.id, { active: false, highlighted: true });
+      highlightedTabId = tab.id;
+      return;
     }
-    
-    browser.tabs.update(activeTabId, { active: true });
-  } else if (message.action === 'removeHighlight') {
-    let tabs = await browser.tabs.query({ active: false, highlighted: true });
-    var tabIds = tabs.map((tab) => tab.id);
-    
-    for (let id of tabIds) {
-      removeHighlight(id);
-    }
+  }
+}
+
+async function clearHighlight() {
+  if (highlightedTabId) {
+    await browser.tabs.update(highlightedTabId, { highlighted: false });
+    highlightedTabId = null;
+  }
+}
+
+browser.runtime.onMessage.addListener((message) => {
+  if (message.action === 'highlightTab') {
+    highlightTabByUrl(message.url);
+  }
+
+  if (message.action === 'removeHighlight') {
+    clearHighlight();
   }
 });

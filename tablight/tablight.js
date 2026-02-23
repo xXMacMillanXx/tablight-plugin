@@ -1,17 +1,27 @@
-// console.log("Tablight loaded");
+let currentLink = null;
 
-document.addEventListener('mouseover', function(event) {
-  let link = event.target.closest('a');
-  if (link && link.href) {
-    // console.log("Sending highlightTab message for URL:", link.href);
-    browser.runtime.sendMessage({ action: 'highlightTab', url: link.href });
-  }
-});
+document.addEventListener('mouseenter', (event) => {
+  const link = event.target.closest('a');
+  if (!link || !link.href || link === currentLink) return;
 
-document.addEventListener('mouseout', function(event) {
-  let link = event.target.closest('a');
-  if (link && link.href) {
-    // console.log("Sending removeHighlight message for URL:", link.href);
-    browser.runtime.sendMessage({ action: 'removeHighlight', url: link.href });
-  }
+  currentLink = link;
+  browser.runtime.sendMessage({
+    action: 'highlightTab',
+    url: link.href
+  });
+}, true);
+
+document.addEventListener('mouseleave', (event) => {
+  const link = event.target.closest('a');
+  if (!link || link !== currentLink) return;
+
+  currentLink = null;
+  browser.runtime.sendMessage({
+    action: 'removeHighlight'
+  });
+}, true);
+
+window.addEventListener('blur', () => {
+  currentLink = null;
+  browser.runtime.sendMessage({ action: 'removeHighlight' });
 });

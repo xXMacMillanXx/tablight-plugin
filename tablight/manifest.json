@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "TabLight",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Hovering over a link will highlight already open tab instances.",
   "icons": {
     "48": "icons/tl-48.png"
