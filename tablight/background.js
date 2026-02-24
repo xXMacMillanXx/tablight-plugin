@@ -1,28 +1,27 @@
 const DEFAULT_SETTINGS = {
-  matchMode: 'exact'
+  matchMode: 'exact',
+  matchAction: 'highlight'
 };
 
 let highlightedTabIds = new Set();
 
-function urlsMatch(tabUrl, linkUrl, mode) {
-  const tab = new URL(tabUrl);
-  const link = new URL(linkUrl);
-  if (!tab || !link) return false;
+function buildUrlPatterns(linkUrl, mode) {
+  const url = new URL(linkUrl);
   
   switch (mode) {
     case 'exact':
-      return tab.href === link.href;
+      return url.href;
     
     case 'hashless':
-      tab.hash = '';
-      link.hash = '';
-      return tab.href === link.href;
+      url.hash = '';
+      return url.href;
     
     case 'path':
-      return (tab.origin + tab.pathname) === (link.origin + link.pathname);
+      // return `${url.origin}${url.pathname.replace(/\/$/, '')}/*`;
+      return `${url.origin}${url.pathname}*`;
     
     default:
-      return false;
+      return null;
   }
 }
 
@@ -32,9 +31,13 @@ async function getSettings() {
 }
 
 async function highlightTabsByUrl(url) {
-  const { matchMode } = await getSettings();
+  const { matchMode, matchAction } = await getSettings();
+  const pattern = buildUrlPatterns(url, matchMode);
+  if (!pattern) return;
+  
   const [ activeTab ] = await browser.tabs.query({ active: true, currentWindow: true });
-  const tabs = await browser.tabs.query({});
+  const tabs = await browser.tabs.query({ url: pattern });
+  const highlight = matchAction === 'highlight' ? true : false;
   
   await clearHighlight();
   
@@ -42,10 +45,10 @@ async function highlightTabsByUrl(url) {
     if (!tab.url) continue;
     if (tab.id === activeTab.id) continue;
     
-    if (urlsMatch(tab.url, url, matchMode)) {
-      await browser.tabs.update(tab.id, { active: false, highlighted: true });
-      highlightedTabIds.add(tab.id);
-    }
+    await browser.tabs.update(tab.id, { active: !highlight, highlighted: highlight });
+    highlightedTabIds.add(tab.id);
+    
+    if (!highlight) return;
   }
 }
 
@@ -59,7 +62,6 @@ async function clearHighlight() {
 }
 
 browser.runtime.onMessage.addListener((message) => {
-  console.log("onMessage: ", message)
   if (message.action === 'highlightTab') {
     highlightTabsByUrl(message.url);
   }

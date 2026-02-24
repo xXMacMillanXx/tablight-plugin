@@ -5,8 +5,15 @@
             Match mode:
             <select id="mode">
                 <option value="exact">Exact URL</option>
-                <option value="hashless">URL without hashtags</option>
-                <option value="path">Shares the same path without the attributes</option>
+                <option value="hashless">Cut off hash</option>
+                <option value="path">Cut off query and beyond</option>
+            </select>
+        </label>
+        <label>
+            Action:
+            <select id="action">
+                <option value="highlight">Highlight matches</option>
+                <option value="follow">Follow match</option>
             </select>
         </label>
 
